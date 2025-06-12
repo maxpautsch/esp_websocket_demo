@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>websocket demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 50px auto; background: #fff; padding: 20px;
+                 box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; }
+    .status { margin: 10px 0; padding: 10px; background: #e0e0e0; border-radius: 5px; }
+    .button { display: block; width: 100%; padding: 10px; background: #007BFF;
+              color: #fff; border: none; border-radius: 5px; cursor: pointer;
+              font-size: 16px; margin-top: 20px; }
+    .button:hover { background: #0056b3; }
+    input[type="text"] { width: 100%; padding: 6px; margin-top: 2px; }
+    input[type="submit"] { margin-top: 12px; padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ESP32 websocket demo</h1>
+    <div class="status">counter<span id="counter">-</span></div>
+    <div class="status">number <span id="number">-</span></div>
+    <div class="status">uptime<span id="uptime">-</span></div>
+    <div class="status">status<span id="status">-</span></div>
+    <button class="button" onclick="increment()">increment</button>
+    <button class="button" onclick="zero()">zero</button>
+  </div>
+  <script>
+    var gateway = `ws://${window.location.hostname}:81`;
+    var websocket;
+    var historyList = [];
+
+    function initWebSocket() {
+      websocket = new WebSocket(gateway);
+      websocket.onopen = function() { console.log('WebSocket connected'); };
+      websocket.onclose = function() { console.log('WebSocket disconnected'); setTimeout(initWebSocket, 2000); };
+      websocket.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        document.getElementById("counter").innerText = data.counter;
+        document.getElementById("number").innerText = data.number;
+        document.getElementById("uptime").innerText = data.uptime;
+        document.getElementById("status").innerText = data.status;
+      };
+    }
+
+    function zero() {
+      websocket.send("{\"command\":\"zero\"}");
+    }
+
+    function increment() {
+      websocket.send("{\"command\":\"increment\"}");
+     // websocket.send(JSON.stringify({ klingelAktiv: current !== "Active" }));
+    }
+
+    window.addEventListener('load', initWebSocket, false);
+  </script>
+</body>
+</html>
