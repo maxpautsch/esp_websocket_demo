@@ -2,17 +2,20 @@
 
 bool ota_running_flag = false;
 
-bool ota_running()
+void loop_ota()
 {
   ArduinoOTA.handle();
-  return ota_running_flag;
+  // sobald OTA läuft, machen wir nichts anderes mehr
+  if(ota_running_flag){
+    while(1){
+      ArduinoOTA.handle();
+      yield();
+    }
+  }
 }
 
 void setup_ota()
 {
-  ArduinoOTA.setPort(8266);
-  ArduinoOTA.setHostname("websocketdemo");
-
   ArduinoOTA.onStart([]()
                      {
       ota_running_flag = true;
@@ -26,9 +29,6 @@ void setup_ota()
       Serial.println("Start updating " + type); });
   ArduinoOTA.onEnd([]()
                    { Serial.println("\nEnd"); });
-  // ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-  //   Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  // });
   ArduinoOTA.onError([](ota_error_t error)
                      {
       Serial.printf("Error[%u]: ", error);

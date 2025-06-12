@@ -1,132 +1,194 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="utf-8">
-  <title>ESP32 WebSocket Demo</title>
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #afafaf;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 60px auto;
-      background: #ffffffee;
-      padding: 30px 25px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(4px);
-    }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 30px;
-      font-size: 28px;
-    }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #ddd;
-    }
-    .row:last-child {
-      border-bottom: none;
-    }
-    .label {
-      font-weight: 600;
-      color: #444;
-    }
-    .value {
-      font-family: monospace;
-      color: #2b2b2b;
-      text-align: right;
-      min-width: 100px;
-    }
-    .button {
-      width: 48%;
-      padding: 12px;
-      background: #4facfe;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s ease, transform 0.1s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    .button:hover {
-      background: #005bea;
-      transform: scale(1.03);
-    }
-    .button:active {
-      transform: scale(0.98);
-    }
-    .button-container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-    }
-  </style>
+    <meta charset="utf-8">
+    <title>ESP32 WebSocket Demo</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: #afafaf;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: #ffffffee;
+            padding: 30px 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(4px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .value {
+            font-family: monospace;
+            color: #2b2b2b;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .button {
+            width: 48%;
+            padding: 12px;
+            background: #4facfe;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover {
+            background: #005bea;
+            transform: scale(1.03);
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>ESP32 WebSocket Demo</h1>
-    <div class="row">
-      <div class="label">Counter</div>
-      <div class="value" id="counter">-</div>
-    </div>
-    <div class="row">
-      <div class="label">Number</div>
-      <div class="value" id="number">-</div>
-    </div>
-    <div class="row">
-      <div class="label">Uptime</div>
-      <div class="value" id="uptime">-</div>
-    </div>
-    <div class="row">
-      <div class="label">Status</div>
-      <div class="value" id="status">-</div>
-    </div>
-    <div class="button-container">
-      <button class="button" onclick="increment()">Increment</button>
-      <button class="button" onclick="zero()">Zero</button>
-    </div>
-  </div>
+    <div class="container">
+        <h1>ESP32 WebSocket Demo</h1>
+        <div class="row">
+            <div class="label">Counter</div>
+            <div class="value" id="counter">-</div>
+        </div>
+        <div class="row">
+            <div class="label">Number</div>
+            <div class="value" id="number">-</div>
+        </div>
+        <div class="row">
+            <div class="label">Uptime</div>
+            <div class="value" id="uptime">-</div>
+        </div>
+        <div class="row">
+            <div class="label">Status</div>
+            <div class="value" id="state">-</div>
+        </div>
+        <div class="row">
+            <div class="label">Boolean Mode</div>
+            <div class="value">
+                <input type="checkbox" id="boolModeCheckbox" />
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="button" onclick="increment()">Increment</button>
+            <button class="button" onclick="zero()">Zero</button>
+            <button class="button" onclick="invert_mode()">Invert mode</button>
 
-  <script>
-    const gateway = `ws://${window.location.hostname}:81`;
-    let websocket;
+        </div>
+        <div class="button-container">
+            <div class="label">Status text</div>
+            <div class="value">
+                <select id="statusSelect" onchange="sendStatus()">
+                    <option value="Idle">Idle</option>
+                    <option value="Running">Running</option>
+                    <option value="Stopped">Stopped</option>
+                    <option value="unknown">unknown</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="label">Set Number</div>
+            <div class="value">
+                <input type="range" id="numberSlider" min="0" max="100" value="0"
+                    oninput="updateNumberLabel(this.value)" onchange="sendNumber()" />
+                <span id="numberValue">0</span>
+            </div>
+        </div>
+    </div>
 
-    function initWebSocket() {
-      websocket = new WebSocket(gateway);
-      websocket.onopen = () => console.log('WebSocket connected');
-      websocket.onclose = () => {
-        console.log('WebSocket disconnected');
-        setTimeout(initWebSocket, 2000);
-      };
-      websocket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        document.getElementById("counter").innerText = data.counter ?? "-";
-        document.getElementById("number").innerText = data.number ?? "-";
-        document.getElementById("uptime").innerText = data.uptime ?? "-";
-        document.getElementById("status").innerText = data.status ?? "-";
-      };
-    }
+    <script>
+        const gateway = `ws://${window.location.hostname}:81`;
+        let websocket;
 
-    function zero() {
-      if (websocket.readyState === WebSocket.OPEN)
-        websocket.send(JSON.stringify({ command: "zero" }));
-    }
+        function initWebSocket() {
+            websocket = new WebSocket(gateway);
+            websocket.onopen = () => console.log('WebSocket connected');
+            websocket.onclose = () => {
+                console.log('WebSocket disconnected');
+                setTimeout(initWebSocket, 2000);
+            };
+            websocket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                document.getElementById("counter").innerText = data.counter ?? "-";
+                document.getElementById("number").innerText = data.number ?? "-";
+                document.getElementById("uptime").innerText = data.uptime ?? "-";
+                document.getElementById("state").innerText = data.state ?? "-";
+                document.getElementById("boolModeCheckbox").checked = data.bool_mode ?? false;
+            };
+        }
 
-    function increment() {
-      if (websocket.readyState === WebSocket.OPEN)
-        websocket.send(JSON.stringify({ command: "increment" }));
-    }
+        function zero() {
+            if (websocket.readyState === WebSocket.OPEN)
+                websocket.send(JSON.stringify({ command: "zero" }));
+        }
 
-    window.addEventListener('load', initWebSocket, false);
-  </script>
+        function increment() {
+            if (websocket.readyState === WebSocket.OPEN)
+                websocket.send(JSON.stringify({ command: "increment" }));
+        }
+
+        function invert_mode() {
+            if (websocket.readyState === WebSocket.OPEN)
+                websocket.send(JSON.stringify({ command: "invert_mode" }));
+        }
+
+        function sendStatus() {
+            const selectedStatus = document.getElementById("statusSelect").value;
+            if (websocket.readyState === WebSocket.OPEN)
+                websocket.send(JSON.stringify({ command: "set_status", status: selectedStatus }));
+        }
+
+        function updateNumberLabel(value) {
+            document.getElementById("numberValue").innerText = value;
+        }
+
+        function sendNumber() {
+            const value = document.getElementById("numberSlider").value;
+            if (websocket.readyState === WebSocket.OPEN) {
+                websocket.send(JSON.stringify({ command: "set_number", number: parseInt(value) }));
+            }
+        }
+        window.addEventListener('load', initWebSocket, false);
+    </script>
 </body>
+
 </html>

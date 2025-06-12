@@ -4,6 +4,7 @@
 #include <SPIFFS.h>
 
 #include "httpd.h"
+#include "websocketd.h"
 #include "ota.h"
 #define STATUS_INIT
 #include "status.h"
@@ -26,6 +27,7 @@ struct status_t system_status;
 void setup()
 {
   init_status();
+
   Serial.begin(115200);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED)
@@ -59,13 +61,13 @@ void setup()
   }
 
   setup_httpd();
+  setup_websocketd();
   setup_ota();
 }
 
 void loop()
 {
-  if (!ota_running())
-  {
-    loop_httpd();
-  }
+  loop_ota();
+  loop_httpd();
+  loop_websocketd();
 }
