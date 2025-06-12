@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Key-Value Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Live WebSocket Daten</h1>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const table = document.getElementById("dataTable").getElementsByTagName("tbody")[0];
+        var gateway = `ws://${window.location.hostname}:81`;
+
+        function initWebSocket() {
+            const ws = new WebSocket(gateway);
+            ws.onmessage = function (event) {
+                let data = {};
+                try {
+                    data = JSON.parse(event.data);
+                } catch (e) {
+                    console.warn("Ungültiges JSON:", event.data);
+                    return;
+                }
+
+                // Clear table
+                table.innerHTML = "";
+
+                for (const [key, value] of Object.entries(data)) {
+                    const row = table.insertRow();
+                    const cellKey = row.insertCell(0);
+                    const cellValue = row.insertCell(1);
+                    cellKey.textContent = key;
+                    cellValue.textContent = value;
+                }
+            };
+        }
+        window.addEventListener('load', initWebSocket, false);
+    </script>
+</body>
+
+</html>

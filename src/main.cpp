@@ -21,16 +21,15 @@
 
 // ----------------------- WIFI credentials -----------------------
 
-
 struct status_t system_status;
 
-
-void setup() {
+void setup()
+{
   init_status();
-
   Serial.begin(115200);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
@@ -44,24 +43,29 @@ void setup() {
   WiFi.setHostname("websocketdemo");
 
   // Set mDNS hostname
-  if (!MDNS.begin("websocketdemo")) {
+  if (!MDNS.begin("websocketdemo"))
+  {
     Serial.println("Error setting mDNS hostname!");
-  } else {
+  }
+  else
+  {
     Serial.println("mDNS hostname set to 'websocketdemo'");
   }
 
-  if(!SPIFFS.begin(true)){
+  // dateisystem starten
+  if (!SPIFFS.begin(true))
+  {
     Serial.println("An Error has occurred while mounting SPIFFS");
   }
 
   setup_httpd();
   setup_ota();
-
 }
 
-void loop(){
-  if(!ota_running()) {
+void loop()
+{
+  if (!ota_running())
+  {
     loop_httpd();
   }
 }
-
