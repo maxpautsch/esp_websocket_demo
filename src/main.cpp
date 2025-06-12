@@ -24,10 +24,10 @@
 
 struct status_t system_status;
 
-  
 
 void setup() {
   init_status();
+
   Serial.begin(115200);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {

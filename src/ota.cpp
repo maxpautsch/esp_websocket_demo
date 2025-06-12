@@ -1,13 +1,18 @@
 #include "ota.h"
 
-bool ota_running = false;
+bool ota_running_flag = false;
+
+bool ota_running(){
+    ArduinoOTA.handle();
+    return ota_running_flag;
+}
 
 void setup_ota(){
   ArduinoOTA.setPort(8266);
   ArduinoOTA.setHostname("websocketdemo");
 
   ArduinoOTA.onStart([]() {
-      ota_running = true;
+      ota_running_flag = true;
       String type;
       if (ArduinoOTA.getCommand() == U_FLASH)
         type = "sketch";
